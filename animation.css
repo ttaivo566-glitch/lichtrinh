@@ -1,64 +1,80 @@
 /* ==========================================================
-   CUSTOM ANIMATIONS & UI EFFECTS (animations.css)
+   ENHANCED ANIMATIONS & UI EFFECTS (animations.css)
    ========================================================== */
 
-/* Hiệu ứng chuyển động mượt mà khi đổi view lịch (Tháng/Tuần/Ngày) */
+/* Hiệu ứng chuyển cảnh mượt mà toàn trang */
 ::view-transition-old(root), 
 ::view-transition-new(root) {
-  animation-duration: 0.35s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fc {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Hiệu ứng tương tác ô lịch */
 .fc-daygrid-day-frame {
-  border-radius: 1rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 4px;
+  border-radius: 0.85rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 6px;
+  /* Khóa cứng kích thước ô lịch, không bị giãn khi có nhiều việc */
+  min-height: 110px !important;
+  max-height: 110px !important;
+  overflow: hidden !important;
+  position: relative;
 }
 
 .fc-daygrid-day-frame:hover {
-  background-color: rgba(99, 102, 241, 0.08);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+  background-color: rgba(99, 102, 241, 0.05);
+  transform: translateY(-1px);
   cursor: pointer;
 }
 
-/* Hiệu ứng sự kiện trên lịch */
+/* Khung chứa sự kiện bên trong ô lịch có thanh cuộn nếu quá dài */
+.fc-daygrid-day-events {
+  max-height: 70px !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin;
+}
+
+.fc-daygrid-day-events::-webkit-scrollbar {
+  width: 3px;
+}
+.fc-daygrid-day-events::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+
+/* Hiệu ứng sự kiện (Event badges) */
 .fc-event {
-  border-radius: 0.5rem !important;
+  border-radius: 0.4rem !important;
   border: none !important;
-  padding: 4px 8px !important;
+  padding: 2px 6px !important;
   font-weight: 500;
-  font-size: 0.85rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.78rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, filter 0.15s ease;
 }
 
 .fc-event:hover {
   transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  filter: brightness(1.05);
 }
 
-/* Hiệu ứng Modal Morph & Focus */
+/* Hiệu ứng Modal Morph & Focus mượt mà */
 .modal-backdrop {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-content {
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.2);
 }
 
-/* Hiệu ứng chuyển động cho danh sách trong Modal chi tiết */
+/* Hiệu ứng hover danh sách chi tiết ngày */
 .detail-item {
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .detail-item:hover {
   transform: translateX(4px);
+  background-color: rgba(99, 102, 241, 0.04);
 }
