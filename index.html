@@ -24,26 +24,101 @@
     }
   </script>
 
-  <!-- Liên kết File CSS Hiệu ứng riêng biệt -->
-  <link rel="stylesheet" href="animations.css">
-
-  <!-- OneSignal Web SDK -->
+  <!-- OneSignal Web SDK v16 Cấu hình chuẩn xác -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal) {
+    window.OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
         appId: "0df7994b-e035-4625-ae7d-e5965ce9a108",
+        safari_web_id: "web.onesignal.auto.0df7994b-e035-4625-ae7d-e5965ce9a108",
+        notifyButton: { enable: false },
+        allowLocalhostAsSecureOrigin: true
       });
     });
   </script>
 
   <style>
-    /* Tùy chỉnh màu viền lịch hài hòa */
+    /* ==========================================================
+       TOÀN BỘ CSS HIỆU ỨNG & TÙY CHỈNH KÍCH THƯỚC LỊCH
+       ========================================================== */
+    
+    /* Chuyển cảnh mượt mà toàn trang */
+    ::view-transition-old(root), 
+    ::view-transition-new(root) {
+      animation-duration: 0.3s;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Tùy chỉnh đường viền lịch */
     .fc-theme-standard td, .fc-theme-standard th { border-color: #e2e8f0 !important; }
     .dark .fc-theme-standard td, .dark .fc-theme-standard th { border-color: #334155 !important; }
-    
-    /* Tùy chỉnh thanh cuộn chung */
+
+    /* CỐ ĐỊNH KÍCH THƯỚC Ô LỊCH (Khóa cứng chiều cao, không vỡ khung) */
+    .fc-daygrid-day-frame {
+      border-radius: 0.85rem;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 6px;
+      min-height: 110px !important;
+      max-height: 110px !important;
+      overflow: hidden !important;
+      position: relative;
+    }
+
+    .fc-daygrid-day-frame:hover {
+      background-color: rgba(99, 102, 241, 0.06);
+      transform: translateY(-1px);
+      cursor: pointer;
+    }
+
+    /* Thanh cuộn riêng bên trong ô lịch nếu có nhiều công việc */
+    .fc-daygrid-day-events {
+      max-height: 70px !important;
+      overflow-y: auto !important;
+      scrollbar-width: thin;
+    }
+
+    .fc-daygrid-day-events::-webkit-scrollbar { width: 3px; }
+    .fc-daygrid-day-events::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+
+    /* Hiệu ứng nhãn công việc */
+    .fc-event {
+      border-radius: 0.4rem !important;
+      border: none !important;
+      padding: 2px 6px !important;
+      font-weight: 500;
+      font-size: 0.78rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .fc-event:hover {
+      transform: scale(1.02);
+      filter: brightness(1.05);
+    }
+
+    /* Hiệu ứng Modal Morph & Focus mượt mà */
+    .modal-backdrop {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-content {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Hiệu ứng hover danh sách chi tiết ngày */
+    .detail-item {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .detail-item:hover {
+      transform: translateX(4px);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+
+    /* Thanh cuộn ứng dụng */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
@@ -456,6 +531,7 @@
       else badge.classList.add('hidden');
     }
 
+    // --- Đăng ký nhận Thông báo đẩy OneSignal ---
     async function subscribePush() {
       if (window.OneSignal && window.OneSignal.User) {
         try {
@@ -463,10 +539,10 @@
           alert("Đã kích hoạt đăng ký thông báo thành công trên thiết bị này!");
           addHistoryItem('🔔 Kích hoạt thông báo', 'Thiết bị đã đăng ký nhận thông báo đẩy thành công.');
         } catch (err) {
-          alert("Vui lòng cấu hình App ID OneSignal chính xác.");
+          alert("Vui lòng cho phép quyền thông báo trên trình duyệt.");
         }
       } else {
-        alert("Hệ thống thông báo đang khởi tạo.");
+        alert("Hệ thống thông báo đang kết nối, vui lòng thử lại sau vài giây.");
       }
     }
 
