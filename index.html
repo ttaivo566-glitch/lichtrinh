@@ -36,21 +36,27 @@
   </script>
 
   <style>
-    /* Hiệu ứng morph / chuyển đổi mượt mà */
-    .fc { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .fc-theme-standard td, .fc-theme-standard th { border-color: #f3f4f6 !important; }
-    .dark .fc-theme-standard td, .dark .fc-theme-standard th { border-color: #374151 !important; }
+    /* Hiệu ứng morph / chuyển động mượt mà cho lịch và khung nhìn */
+    ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.3s; }
+    .fc { transition: transform 0.3s ease, opacity 0.3s ease; }
+    
+    .fc-theme-standard td, .fc-theme-standard th { border-color: #f1f5f9 !important; }
+    .dark .fc-theme-standard td, .dark .fc-theme-standard th { border-color: #334155 !important; }
     
     /* Bo góc mềm mại cho các ô lịch */
-    .fc-daygrid-day-frame { border-radius: 1rem; transition: background-color 0.2s; padding: 4px; }
-    .fc-daygrid-day-frame:hover { background-color: rgba(99, 102, 241, 0.04); cursor: pointer; }
-    .fc-event { border-radius: 0.5rem !important; border: none !important; padding: 3px 6px !important; font-weight: 500; font-size: 0.85rem; }
+    .fc-daygrid-day-frame { border-radius: 1rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); padding: 4px; }
+    .fc-daygrid-day-frame:hover { background-color: rgba(99, 102, 241, 0.06); transform: scale(1.01); cursor: pointer; }
+    .fc-event { border-radius: 0.5rem !important; border: none !important; padding: 4px 8px !important; font-weight: 500; font-size: 0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     
-    /* Tùy chỉnh thanh cuộn */
+    /* Hiệu ứng focus / morph modal */
+    .modal-backdrop { backdrop-filter: blur(8px); transition: opacity 0.3s ease; }
+    .modal-content { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease; }
+
+    /* Thanh cuộn gọn gàng */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-    .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen p-4 md:p-8 transition-colors duration-300">
@@ -67,7 +73,7 @@
         </div>
         <div>
           <h1 class="text-xl md:text-2xl font-bold tracking-tight">Lịch Trình Hoạt Động</h1>
-          <p class="text-xs text-slate-400">Quản lý công việc & thông báo thông minh</p>
+          <p class="text-xs text-slate-400">Hệ thống nhắc nhở & quản lý thông minh</p>
         </div>
       </div>
 
@@ -78,10 +84,14 @@
           <span>Thêm Hoạt Động</span>
         </button>
 
+        <!-- Nút Cài đặt Thông báo -->
+        <button onclick="openSettingsModal()" class="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 text-slate-600 dark:text-slate-300 rounded-xl transition-all" title="Cài đặt thông báo">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+
+        <!-- Nút Xem Lịch sử Thông báo -->
         <button onclick="toggleNotificationHistory()" class="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 text-slate-600 dark:text-slate-300 rounded-xl transition-all relative" title="Lịch sử thông báo">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           <span id="notifBadge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full hidden"></span>
         </button>
 
@@ -100,9 +110,55 @@
     <div id="calendar" class="bg-white dark:bg-slate-800 rounded-2xl p-2"></div>
   </div>
 
+  <!-- MODAL CÀI ĐẶT THÔNG BÁO -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/50 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-700 modal-content scale-95" id="settingsModalContent">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold">⚙️ Tùy Chỉnh Thông Báo</h3>
+        <button onclick="closeSettingsModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Giờ nhắc nhở hàng ngày</label>
+          <input type="time" id="settingDailyTime" value="20:00" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Ngày đầu tuần</label>
+            <select id="settingWeeklyDay" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
+              <option value="1">Thứ Hai</option>
+              <option value="2">Thứ Ba</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Giờ đầu tuần</label>
+            <input type="time" id="settingWeeklyTime" value="07:00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Kiểu nội dung thông báo</label>
+          <select id="settingContentType" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
+            <option value="detailed">Liệt kê tất cả công việc (gồm ngày giờ, nội dung)</option>
+            <option value="summary">Tóm tắt tổng số lượng công việc</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-2">
+          <button onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-sm font-semibold rounded-xl transition-all">Hủy</button>
+          <button onclick="saveNotificationSettings()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-md transition-all">Lưu Cài Đặt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL THÊM CÔNG VIỆC -->
-  <div id="addModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform scale-95 transition-transform duration-300" id="modalContent">
+  <div id="addModal" class="fixed inset-0 bg-slate-900/50 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-700 modal-content scale-95" id="modalContent">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-bold">Thêm Hoạt Động Mới</h3>
         <button onclick="closeAddModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
@@ -113,40 +169,40 @@
       <form id="eventForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tên hoạt động</label>
-          <input type="text" id="eventTitle" required placeholder="Ví dụ: Họp chiến lược tuần..." class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+          <input type="text" id="eventTitle" required placeholder="Ví dụ: Họp chiến lược tuần..." class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
         </div>
         
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Thời gian bắt đầu</label>
-            <input type="datetime-local" id="eventStart" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Thời gian</label>
+            <input type="datetime-local" id="eventStart" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
           </div>
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Mức độ ưu tiên</label>
-            <select id="eventPriority" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
-              <option value="#6366f1">Bình thường (Xanh dương)</option>
-              <option value="#f59e0b">Quan trọng (Cam dịu)</option>
-              <option value="#ef4444">Khẩn cấp (Đỏ dịu)</option>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Ưu tiên</label>
+            <select id="eventPriority" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+              <option value="#6366f1">Bình thường</option>
+              <option value="#f59e0b">Quan trọng</option>
+              <option value="#ef4444">Khẩn cấp</option>
             </select>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Mô tả chi tiết</label>
-          <textarea id="eventDesc" rows="3" placeholder="Ghi chú thêm về nội dung công việc..." class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"></textarea>
+          <textarea id="eventDesc" rows="3" placeholder="Ghi chú thêm..." class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm resize-none"></textarea>
         </div>
 
         <div class="flex justify-end space-x-2 pt-2">
-          <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-sm font-semibold rounded-xl transition-all">Hủy</button>
+          <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-sm font-semibold rounded-xl transition-all">Hủy</button>
           <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-md transition-all">Lưu Hoạt Động</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL XEM CHI TIẾT NGÀY / SỰ KIỆN -->
-  <div id="detailModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform scale-95 transition-transform duration-300" id="detailModalContent">
+  <!-- MODAL XEM CHI TIẾT NGÀY -->
+  <div id="detailModal" class="fixed inset-0 bg-slate-900/50 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-700 modal-content scale-95" id="detailModalContent">
       <div class="flex justify-between items-center mb-4">
         <h3 id="detailDateTitle" class="text-lg font-bold">Chi tiết ngày</h3>
         <button onclick="closeDetailModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
@@ -154,9 +210,7 @@
         </button>
       </div>
       
-      <div id="detailEventsList" class="space-y-3 max-h-60 overflow-y-auto mb-4">
-        <!-- Danh sách sự kiện trong ngày sẽ được điền bằng JS -->
-      </div>
+      <div id="detailEventsList" class="space-y-3 max-h-60 overflow-y-auto mb-4"></div>
 
       <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-700">
         <button onclick="openAddModalWithDate()" class="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 text-sm font-semibold rounded-xl transition-all">
@@ -168,21 +222,19 @@
   </div>
 
   <!-- MODAL LỊCH SỬ THÔNG BÁO -->
-  <div id="historyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform scale-95 transition-transform duration-300" id="historyModalContent">
+  <div id="historyModal" class="fixed inset-0 bg-slate-900/50 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-700 modal-content scale-95" id="historyModalContent">
       <div class="flex justify-between items-center mb-4">
         <div class="flex items-center space-x-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <h3 class="text-lg font-bold">Lịch Sử Thông Báo Đã Gửi</h3>
+          <h3 class="text-lg font-bold">Lịch Sử Thông Báo</h3>
         </div>
         <button onclick="toggleNotificationHistory()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
       
-      <div id="historyListContainer" class="space-y-3 max-h-72 overflow-y-auto mb-4 pr-1">
-        <!-- Lịch sử hiển thị ở đây -->
-      </div>
+      <div id="historyListContainer" class="space-y-3 max-h-72 overflow-y-auto mb-4 pr-1"></div>
 
       <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-700">
         <button onclick="clearHistory()" class="px-4 py-2 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 text-sm font-semibold rounded-xl transition-all">Xóa lịch sử</button>
@@ -196,25 +248,22 @@
     let selectedDateForNewEvent = '';
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Khởi tạo Dark Mode từ localStorage
       if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.classList.add('dark');
       }
 
+      loadNotificationSettings();
+
       const calendarEl = document.getElementById('calendar');
-      
       const defaultEvents = [
-        { title: 'Họp chiến lược đầu tuần', start: '2026-10-19T08:30:00', backgroundColor: '#6366f1', description: 'Triển khai công việc tuần mới với các thành viên.' },
-        { title: 'Chạy bộ thể dục', start: '2026-10-21T17:30:00', backgroundColor: '#f59e0b', description: 'Rèn luyện sức khỏe tại công viên gần nhà.' }
+        { title: 'Họp chiến lược đầu tuần', start: '2026-10-19T08:30:00', backgroundColor: '#6366f1', description: 'Triển khai công việc tuần mới.' },
+        { title: 'Chạy bộ thể dục', start: '2026-10-21T17:30:00', backgroundColor: '#f59e0b', description: 'Rèn luyện sức khỏe.' }
       ];
-      
       const savedEvents = JSON.parse(localStorage.getItem('schedule_events')) || defaultEvents;
-      
-      // Khởi tạo lịch sử thông báo mẫu nếu chưa có
+
       if (!localStorage.getItem('notif_history')) {
         const sampleHistory = [
-          { title: '🗓️ Lịch trình tuần mới', body: 'Tuần này bạn có 2 hoạt động cần hoàn thành!', time: '19/10/2026 07:00' },
-          { title: '📋 Lịch trình ngày mai', body: 'Bạn có 1 hoạt động: Chạy bộ thể dục', time: '20/10/2026 20:00' }
+          { title: '🗓️ Lịch trình tuần mới', body: 'Tuần này bạn có 2 hoạt động cần hoàn thành!', time: '19/10/2026 07:00' }
         ];
         localStorage.setItem('notif_history', JSON.stringify(sampleHistory));
       }
@@ -230,19 +279,65 @@
         },
         buttonText: { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày' },
         events: savedEvents,
-        // Khi bấm vào một ngày trên lịch -> Xem chi tiết các sự kiện trong ngày đó
+        // Hiệu ứng mượt mà khi chuyển view hoặc bấm đổi tháng/tuần
+        datesSet: function() {
+          if (document.startViewTransition) {
+            document.startViewTransition(() => {});
+          }
+        },
         dateClick: function(info) {
           selectedDateForNewEvent = info.dateStr;
           showDayDetail(info.dateStr);
         },
-        // Khi bấm vào sự kiện cụ thể
         eventClick: function(info) {
-          alert(`Hoạt động: ${info.event.title}\nThời gian: ${info.event.start.toLocaleString('vi-VN')}\nMô tả: ${info.event.extendedProps.description || 'Không có mô tả'}`);
+          alert(`Hoạt động: ${info.event.title}\nThời gian: ${info.event.start.toLocaleString('vi-VN')}\nMô tả: ${info.event.extendedProps.description || 'Không có'}`);
         }
       });
       
       calendar.render();
     });
+
+    // --- Cài đặt thông báo ---
+    function openSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        document.getElementById('settingsModalContent').classList.remove('scale-95');
+      }, 10);
+    }
+
+    function closeSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      modal.classList.add('opacity-0');
+      document.getElementById('settingsModalContent').classList.add('scale-95');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function loadNotificationSettings() {
+      const settings = JSON.parse(localStorage.getItem('notif_settings')) || {
+        dailyTime: '20:00',
+        weeklyDay: '1',
+        weeklyTime: '07:00',
+        contentType: 'detailed'
+      };
+      document.getElementById('settingDailyTime').value = settings.dailyTime;
+      document.getElementById('settingWeeklyDay').value = settings.weeklyDay;
+      document.getElementById('settingWeeklyTime').value = settings.weeklyTime;
+      document.getElementById('settingContentType').value = settings.contentType;
+    }
+
+    function saveNotificationSettings() {
+      const settings = {
+        dailyTime: document.getElementById('settingDailyTime').value,
+        weeklyDay: document.getElementById('settingWeeklyDay').value,
+        weeklyTime: document.getElementById('settingWeeklyTime').value,
+        contentType: document.getElementById('settingContentType').value
+      };
+      localStorage.setItem('notif_settings', JSON.stringify(settings));
+      closeSettingsModal();
+      alert("Đã lưu cài đặt thông báo thành công!");
+    }
 
     // --- Modal Thêm Hoạt Động ---
     function openAddModal() {
@@ -287,12 +382,17 @@
       events.push(newEvent);
       localStorage.setItem('schedule_events', JSON.stringify(events));
 
-      // Thêm vào lịch sử thông báo giả lập để test
-      addHistoryItem('🔔 Đã thêm hoạt động mới', `Đã lên lịch: "${title}" vào lúc ${new Date(start).toLocaleString('vi-VN')}`);
+      const settings = JSON.parse(localStorage.getItem('notif_settings')) || { contentType: 'detailed' };
+      let notifBody = settings.contentType === 'detailed' 
+        ? `Nội dung: ${title} lúc ${new Date(start).toLocaleString('vi-VN')}` 
+        + (description ? ` (${description})` : '')
+        : `Bạn vừa thêm 1 hoạt động mới.`;
+
+      addHistoryItem('🔔 Đã thêm & Lên lịch thông báo', notifBody);
 
       closeAddModal();
       document.getElementById('eventForm').reset();
-      alert("Đã lưu hoạt động thành công và cập nhật lịch!");
+      alert("Đã lưu hoạt động thành công!");
     }
 
     // --- Modal Xem Chi Tiết Ngày ---
@@ -306,7 +406,7 @@
 
       const listContainer = document.getElementById('detailEventsList');
       if (dayEvents.length === 0) {
-        listContainer.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">Không có hoạt động nào trong ngày này.</p>`;
+        listContainer.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">Không có hoạt động nào.</p>`;
       } else {
         listContainer.innerHTML = dayEvents.map(ev => `
           <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 flex justify-between items-center">
@@ -392,14 +492,10 @@
     function checkNotificationBadge() {
       const history = JSON.parse(localStorage.getItem('notif_history')) || [];
       const badge = document.getElementById('notifBadge');
-      if (history.length > 0) {
-        badge.classList.remove('hidden');
-      } else {
-        badge.classList.add('hidden');
-      }
+      if (history.length > 0) badge.classList.remove('hidden');
+      else badge.classList.add('hidden');
     }
 
-    // --- Cấp quyền thông báo OneSignal ---
     async function subscribePush() {
       if (window.OneSignal && window.OneSignal.User) {
         try {
@@ -407,14 +503,13 @@
           alert("Đã kích hoạt đăng ký thông báo thành công trên thiết bị này!");
           addHistoryItem('🔔 Kích hoạt thông báo', 'Thiết bị đã đăng ký nhận thông báo đẩy thành công.');
         } catch (err) {
-          alert("Vui lòng cấu hình App ID OneSignal chính xác để sử dụng tính năng này.");
+          alert("Vui lòng cấu hình App ID OneSignal chính xác.");
         }
       } else {
-        alert("Hệ thống thông báo đang khởi tạo hoặc chạy ngoại tuyến.");
+        alert("Hệ thống thông báo đang khởi tạo.");
       }
     }
 
-    // --- Chuyển đổi Dark Mode ---
     function toggleDarkMode() {
       if (document.documentElement.classList.contains('dark')) {
         document.documentElement.classList.remove('dark');
