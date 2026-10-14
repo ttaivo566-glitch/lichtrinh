@@ -1,0 +1,64 @@
+/* ==========================================================
+   CUSTOM ANIMATIONS & UI EFFECTS (animations.css)
+   ========================================================== */
+
+/* Hiệu ứng chuyển động mượt mà khi đổi view lịch (Tháng/Tuần/Ngày) */
+::view-transition-old(root), 
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fc {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Hiệu ứng tương tác ô lịch */
+.fc-daygrid-day-frame {
+  border-radius: 1rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 4px;
+}
+
+.fc-daygrid-day-frame:hover {
+  background-color: rgba(99, 102, 241, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+  cursor: pointer;
+}
+
+/* Hiệu ứng sự kiện trên lịch */
+.fc-event {
+  border-radius: 0.5rem !important;
+  border: none !important;
+  padding: 4px 8px !important;
+  font-weight: 500;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fc-event:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Hiệu ứng Modal Morph & Focus */
+.modal-backdrop {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-content {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Hiệu ứng chuyển động cho danh sách trong Modal chi tiết */
+.detail-item {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.detail-item:hover {
+  transform: translateX(4px);
+}
