@@ -39,35 +39,38 @@
   </script>
 
   <style>
-    .fc-theme-standard td, .fc-theme-standard th { border-color: #f1f5f9 !important; }
+    /* Tùy chỉnh màu viền lịch hài hòa */
+    .fc-theme-standard td, .fc-theme-standard th { border-color: #e2e8f0 !important; }
     .dark .fc-theme-standard td, .dark .fc-theme-standard th { border-color: #334155 !important; }
+    
+    /* Tùy chỉnh thanh cuộn chung */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     .dark ::-webkit-scrollbar-thumb { background: #475569; }
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen p-4 md:p-8 transition-colors duration-300">
+<body class="bg-gradient-to-br from-slate-100 via-slate-50 to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 text-slate-800 dark:text-slate-100 min-h-screen p-4 md:p-8 transition-colors duration-300">
 
-  <div class="max-w-5xl mx-auto bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700">
+  <div class="max-w-5xl mx-auto bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/60">
     
     <!-- Header ứng dụng -->
-    <div class="flex flex-col md:flex-row justify-between items-center pb-6 border-b border-slate-100 dark:border-slate-700 gap-4 mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center pb-6 border-b border-slate-100 dark:border-slate-700/80 gap-4 mb-6">
       <div class="flex items-center space-x-3">
-        <div class="p-3 bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-2xl shadow-sm">
+        <div class="p-3 bg-gradient-to-br from-indigo-500 to-brand-600 text-white rounded-2xl shadow-md shadow-indigo-500/20">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
         <div>
-          <h1 class="text-xl md:text-2xl font-bold tracking-tight">Lịch Trình Hoạt Động</h1>
-          <p class="text-xs text-slate-400">Hệ thống nhắc nhở & quản lý thông minh</p>
+          <h1 class="text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400 bg-clip-text text-transparent">Lịch Trình Hoạt Động</h1>
+          <p class="text-xs text-slate-400 font-medium">Hệ thống nhắc nhở & quản lý thông minh</p>
         </div>
       </div>
 
       <!-- Thanh công cụ hành động -->
-      <div class="flex flex-wrap items-center gap-2">
-        <button onclick="openAddModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-md shadow-indigo-200 dark:shadow-none transition-all flex items-center space-x-2">
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button onclick="openAddModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all flex items-center space-x-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           <span>Thêm Hoạt Động</span>
         </button>
@@ -78,10 +81,10 @@
 
         <button onclick="toggleNotificationHistory()" class="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 text-slate-600 dark:text-slate-300 rounded-xl transition-all relative" title="Lịch sử thông báo">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span id="notifBadge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full hidden"></span>
+          <span id="notifBadge" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-800 hidden"></span>
         </button>
 
-        <button onclick="subscribePush()" class="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center space-x-1.5">
+        <button onclick="subscribePush()" class="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-lg shadow-emerald-500/25 transition-all flex items-center space-x-1.5">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           <span>Bật Thông Báo</span>
         </button>
@@ -93,12 +96,12 @@
     </div>
 
     <!-- Khung Lịch -->
-    <div id="calendar" class="bg-white dark:bg-slate-800 rounded-2xl p-2"></div>
+    <div id="calendar" class="bg-transparent rounded-2xl p-1"></div>
   </div>
 
   <!-- MODAL CÀI ĐẶT THÔNG BÁO -->
-  <div id="settingsModal" class="fixed inset-0 bg-slate-900/50 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95" id="settingsModalContent">
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95 shadow-2xl" id="settingsModalContent">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-bold">⚙️ Tùy Chỉnh Thông Báo</h3>
         <button onclick="closeSettingsModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
@@ -140,8 +143,8 @@
   </div>
 
   <!-- MODAL THÊM CÔNG VIỆC -->
-  <div id="addModal" class="fixed inset-0 bg-slate-900/50 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95" id="modalContent">
+  <div id="addModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95 shadow-2xl" id="modalContent">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-bold">Thêm Hoạt Động Mới</h3>
         <button onclick="closeAddModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
@@ -181,8 +184,8 @@
   </div>
 
   <!-- MODAL XEM CHI TIẾT NGÀY & XÓA CÔNG VIỆC -->
-  <div id="detailModal" class="fixed inset-0 bg-slate-900/50 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95" id="detailModalContent">
+  <div id="detailModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95 shadow-2xl" id="detailModalContent">
       <div class="flex justify-between items-center mb-4">
         <h3 id="detailDateTitle" class="text-lg font-bold">Chi tiết ngày</h3>
         <button onclick="closeDetailModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
@@ -190,7 +193,6 @@
         </button>
       </div>
       
-      <!-- Danh sách sự kiện đồng bộ giao diện & nút Xóa -->
       <div id="detailEventsList" class="space-y-3 max-h-64 overflow-y-auto mb-4 pr-1"></div>
 
       <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-700">
@@ -203,8 +205,8 @@
   </div>
 
   <!-- MODAL LỊCH SỬ THÔNG BÁO -->
-  <div id="historyModal" class="fixed inset-0 bg-slate-900/50 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95" id="historyModalContent">
+  <div id="historyModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95 shadow-2xl" id="historyModalContent">
       <div class="flex justify-between items-center mb-4">
         <div class="flex items-center space-x-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -386,18 +388,14 @@
     function deleteEvent(eventId, dateStr) {
       if (!confirm("Bạn có chắc chắn muốn xóa hoạt động này không?")) return;
 
-      // Xóa khỏi FullCalendar
       const targetEvent = calendar.getEventById(eventId);
       if (targetEvent) targetEvent.remove();
 
-      // Xóa khỏi LocalStorage
       let events = JSON.parse(localStorage.getItem('schedule_events')) || [];
       events = events.filter(ev => ev.id !== eventId && ev.id != null);
       localStorage.setItem('schedule_events', JSON.stringify(events));
 
       addHistoryItem('🗑️ Đã xóa hoạt động', 'Một hoạt động đã được gỡ khỏi lịch trình.');
-      
-      // Làm mới bảng chi tiết ngày
       showDayDetail(dateStr);
     }
 
