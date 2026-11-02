@@ -1,562 +1,186 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lịch Trình Hoạt Động & Nhắc Nhở</title>
-  
-  <!-- FullCalendar CSS & JS -->
-  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
-  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- OneSignal Web SDK v16 (Đã cấu hình đúng scope /lichtrinh/) -->
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    window.OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: "0df7994b-e035-4625-ae7d-e5965ce9a108",
-        safari_web_id: "web.onesignal.auto.0df7994b-e035-4625-ae7d-e5965ce9a108",
-        notifyButton: { enable: false },
-        allowLocalhostAsSecureOrigin: true,
-        serviceWorkerParam: { scope: "/lichtrinh/" },
-        serviceWorkerPath: "OneSignalSDKWorker.js"
-      });
-    });
-  </script>
-
-  <style>
-    /* ==========================================================
-       TOÀN BỘ CSS HIỆU ỨNG & TÙY CHỈNH KÍCH THƯỚC LỊCH
-       ========================================================== */
-    
-    /* Chuyển cảnh mượt mà toàn trang */
-    ::view-transition-old(root), 
-    ::view-transition-new(root) {
-      animation-duration: 0.3s;
-      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* Tùy chỉnh đường viền lịch */
-    .fc-theme-standard td, .fc-theme-standard th { border-color: #e2e8f0 !important; }
-    .dark .fc-theme-standard td, .dark .fc-theme-standard th { border-color: #334155 !important; }
-
-    /* CỐ ĐỊNH KÍCH THƯỚC Ô LỊCH (Khóa cứng chiều cao, không vỡ khung) */
-    .fc-daygrid-day-frame {
-      border-radius: 0.85rem;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 6px;
-      min-height: 110px !important;
-      max-height: 110px !important;
-      overflow: hidden !important;
-      position: relative;
-    }
-
-    .fc-daygrid-day-frame:hover {
-      background-color: rgba(99, 102, 241, 0.06);
-      transform: translateY(-1px);
-      cursor: pointer;
-    }
-
-    /* Thanh cuộn riêng bên trong ô lịch nếu có nhiều công việc */
-    .fc-daygrid-day-events {
-      max-height: 70px !important;
-      overflow-y: auto !important;
-      scrollbar-width: thin;
-    }
-
-    .fc-daygrid-day-events::-webkit-scrollbar { width: 3px; }
-    .fc-daygrid-day-events::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
-
-    /* Hiệu ứng nhãn công việc */
-    .fc-event {
-      border-radius: 0.4rem !important;
-      border: none !important;
-      padding: 2px 6px !important;
-      font-weight: 500;
-      font-size: 0.78rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      transition: transform 0.15s ease, filter 0.15s ease;
-    }
-
-    .fc-event:hover {
-      transform: scale(1.02);
-      filter: brightness(1.05);
-    }
-
-    /* Hiệu ứng Modal Morph & Focus mượt mà */
-    .modal-backdrop {
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .modal-content {
-      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25);
-    }
-
-    /* Hiệu ứng hover danh sách chi tiết ngày */
-    .detail-item {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .detail-item:hover {
-      transform: translateX(4px);
-      background-color: rgba(99, 102, 241, 0.05);
-    }
-
-    /* Thanh cuộn ứng dụng */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-    .dark ::-webkit-scrollbar-thumb { background: #475569; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quét & Tạo QR Code</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--tx:#1b2330;--mut:#6b7686;--bd:#d9dfe8;--ac:#2563eb;--acx:#fff;--ok:#16a34a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141b;--card:#1a212c;--tx:#e8edf5;--mut:#93a0b3;--bd:#2d3746;--ac:#5b8cff;--acx:#0b1220;--ok:#4ade80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10141b;--card:#1a212c;--tx:#e8edf5;--mut:#93a0b3;--bd:#2d3746;--ac:#5b8cff;--acx:#0b1220;--ok:#4ade80;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 12px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+.drop{border:2px dashed var(--bd);border-radius:12px;padding:28px 12px;text-align:center;color:var(--mut);cursor:pointer}
+.drop.hot{border-color:var(--ac);background:rgba(37,99,235,.08)}
+.drop b{color:var(--tx)}
+.btn{background:var(--ac);color:var(--acx);border:0;border-radius:8px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn.sec{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+.res{display:flex;gap:8px;align-items:center;border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:10px;word-break:break-all}
+.res .t{flex:1;min-width:0}
+.res a{color:var(--ac);text-decoration:underline;cursor:pointer}
+.ic{width:36px;height:36px;border:1px solid var(--bd);background:transparent;color:var(--tx);border-radius:8px;cursor:pointer;display:grid;place-items:center;flex:none}
+.ic.ok{color:var(--ok);border-color:var(--ok)}
+.msg{color:var(--mut);margin-top:10px}
+.err{color:#dc2626}
+#prev{max-width:100%;max-height:220px;border-radius:8px;margin-top:10px;display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+input[type=text],select,textarea{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+input[type=color]{width:100%;height:38px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);padding:2px}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+#qrbox{display:grid;place-items:center;background:#fff;border-radius:12px;padding:12px;min-height:200px;overflow:auto}
+#qrbox canvas,#qrbox svg{max-width:100%;height:auto}
+.hide{display:none}
+</style>
 </head>
-<body class="bg-gradient-to-br from-slate-100 via-slate-50 to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 text-slate-800 dark:text-slate-100 min-h-screen p-4 md:p-8 transition-colors duration-300">
+<body>
+<main>
+<h1>Quét &amp; Tạo QR Code</h1>
+<div class="tabs"><button id="t1" class="on">Quét QR</button><button id="t2">Tạo QR</button></div>
 
-  <div class="max-w-5xl mx-auto bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/60">
-    
-    <!-- Header ứng dụng -->
-    <div class="flex flex-col md:flex-row justify-between items-center pb-6 border-b border-slate-100 dark:border-slate-700/80 gap-4 mb-6">
-      <div class="flex items-center space-x-3">
-        <div class="p-3 bg-gradient-to-br from-indigo-500 to-brand-600 text-white rounded-2xl shadow-md shadow-indigo-500/20">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400 bg-clip-text text-transparent">Lịch Trình Hoạt Động</h1>
-          <p class="text-xs text-slate-400 font-medium">Hệ thống nhắc nhở & quản lý thông minh</p>
-        </div>
+<section id="p1" class="card">
+  <div class="drop" id="drop"><b>Bấm để chọn ảnh</b>, kéo thả vào đây hoặc nhấn <b>Ctrl + V</b> để dán ảnh<input type="file" id="file" accept="image/*" hidden></div>
+  <img id="prev" alt="">
+  <div id="out"></div>
+</section>
+
+<section id="p2" class="card hide">
+  <div class="grid">
+    <div>
+      <label>Nội dung / link</label>
+      <textarea id="data" rows="3">https://example.com</textarea>
+      <div class="row">
+        <div><label>Màu chấm</label><input type="color" id="c1" value="#1b2330"></div>
+        <div><label>Màu mắt QR</label><input type="color" id="c2" value="#2563eb"></div>
+        <div><label>Màu nền</label><input type="color" id="c3" value="#ffffff"></div>
       </div>
-
-      <!-- Thanh công cụ hành động -->
-      <div class="flex flex-wrap items-center gap-2.5">
-        <button onclick="openAddModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all flex items-center space-x-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          <span>Thêm Hoạt Động</span>
-        </button>
-
-        <button onclick="openSettingsModal()" class="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 text-slate-600 dark:text-slate-300 rounded-xl transition-all" title="Cài đặt thông báo">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        </button>
-
-        <button onclick="toggleNotificationHistory()" class="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 text-slate-600 dark:text-slate-300 rounded-xl transition-all relative" title="Lịch sử thông báo">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span id="notifBadge" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-800 hidden"></span>
-        </button>
-
-        <button onclick="subscribePush()" class="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-lg shadow-emerald-500/25 transition-all flex items-center space-x-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span>Bật Thông Báo</span>
-        </button>
-
-        <button onclick="toggleDarkMode()" class="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 text-slate-600 dark:text-slate-300 rounded-xl transition-all">
-          <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        </button>
+      <div class="row">
+        <div><label>Kiểu chấm</label><select id="dt"><option value="square">Vuông</option><option value="dots">Tròn</option><option value="rounded">Bo góc</option><option value="extra-rounded">Bo tròn nhiều</option><option value="classy">Classy</option><option value="classy-rounded">Classy bo</option></select></div>
+        <div><label>Kiểu mắt</label><select id="cs"><option value="square">Vuông</option><option value="dot">Tròn</option><option value="extra-rounded">Bo tròn</option></select></div>
+        <div><label>Kích thước</label><select id="sz"><option>256</option><option selected>320</option><option>512</option><option>1024</option></select></div>
+      </div>
+      <label>Logo ở giữa (tuỳ chọn)</label>
+      <input type="file" id="logo" accept="image/*">
+      <label>Cỡ logo: <span id="lv">30</span>%</label>
+      <input type="range" id="ls" min="10" max="45" value="30" style="width:100%">
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="btn" id="dpng">Tải PNG</button>
+        <button class="btn sec" id="dsvg">Tải SVG</button>
+        <button class="btn sec" id="rmlogo">Xoá logo</button>
       </div>
     </div>
-
-    <!-- Khung Lịch -->
-    <div id="calendar" class="bg-transparent rounded-2xl p-1"></div>
+    <div><div id="qrbox"></div><div class="msg">Logo được che một phần mã, nên đã bật mức sửa lỗi cao nhất (H). Hãy quét thử trước khi dùng.</div></div>
   </div>
+</section>
+</main>
+<script>
+const $=s=>document.getElementById(s);
+const ICON_COPY='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const ICON_OK='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+const ICON_OPEN='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
 
-  <!-- MODAL CÀI ĐẶT THÔNG BÁO -->
-  <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95 shadow-2xl" id="settingsModalContent">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold">⚙️ Tùy Chỉnh Thông Báo</h3>
-        <button onclick="closeSettingsModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Giờ nhắc nhở hàng ngày</label>
-          <input type="time" id="settingDailyTime" value="20:00" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Ngày đầu tuần</label>
-            <select id="settingWeeklyDay" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
-              <option value="1">Thứ Hai</option>
-              <option value="2">Thứ Ba</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Giờ đầu tuần</label>
-            <input type="time" id="settingWeeklyTime" value="07:00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Kiểu nội dung thông báo</label>
-          <select id="settingContentType" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
-            <option value="detailed">Liệt kê tất cả công việc (gồm ngày giờ, nội dung)</option>
-            <option value="summary">Tóm tắt tổng số lượng công việc</option>
-          </select>
-        </div>
-        <div class="flex justify-end space-x-2 pt-2">
-          <button onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-sm font-semibold rounded-xl">Hủy</button>
-          <button onclick="saveNotificationSettings()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-md">Lưu Cài Đặt</button>
-        </div>
-      </div>
-    </div>
-  </div>
+/* Tabs */
+function tab(n){$('p1').classList.toggle('hide',n!=1);$('p2').classList.toggle('hide',n!=2);$('t1').classList.toggle('on',n==1);$('t2').classList.toggle('on',n==2);if(n==2)draw();}
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
 
-  <!-- MODAL THÊM CÔNG VIỆC -->
-  <div id="addModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95 shadow-2xl" id="modalContent">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold">Thêm Hoạt Động Mới</h3>
-        <button onclick="closeAddModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      
-      <form id="eventForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tên hoạt động</label>
-          <input type="text" id="eventTitle" required placeholder="Ví dụ: Họp chiến lược tuần..." class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Thời gian</label>
-            <input type="datetime-local" id="eventStart" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Ưu tiên</label>
-            <select id="eventPriority" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
-              <option value="#6366f1">Bình thường</option>
-              <option value="#f59e0b">Quan trọng</option>
-              <option value="#ef4444">Khẩn cấp</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Mô tả chi tiết</label>
-          <textarea id="eventDesc" rows="3" placeholder="Ghi chú thêm..." class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm resize-none"></textarea>
-        </div>
-        <div class="flex justify-end space-x-2 pt-2">
-          <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-sm font-semibold rounded-xl">Hủy</button>
-          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-md">Lưu Hoạt Động</button>
-        </div>
-      </form>
-    </div>
-  </div>
+/* Copy */
+async function copyText(t,btn){
+  try{await navigator.clipboard.writeText(t);}catch(e){
+    const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();
+    try{document.execCommand('copy');}catch(_){}a.remove();
+  }
+  btn.innerHTML=ICON_OK;btn.classList.add('ok');
+  setTimeout(()=>{btn.innerHTML=ICON_COPY;btn.classList.remove('ok');},1500);
+}
+function isUrl(t){return /^https?:\/\/\S+$/i.test(t.trim());}
+function openUrl(u){window.open(u,'_blank','noopener,noreferrer');}
 
-  <!-- MODAL XEM CHI TIẾT NGÀY & XÓA CÔNG VIỆC -->
-  <div id="detailModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95 shadow-2xl" id="detailModalContent">
-      <div class="flex justify-between items-center mb-4">
-        <h3 id="detailDateTitle" class="text-lg font-bold">Chi tiết ngày</h3>
-        <button onclick="closeDetailModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      
-      <div id="detailEventsList" class="space-y-3 max-h-64 overflow-y-auto mb-4 pr-1"></div>
+/* Scan */
+function show(code){
+  const out=$('out');out.innerHTML='';
+  const text=code.data;
+  const row=document.createElement('div');row.className='res';
+  const t=document.createElement('div');t.className='t';
+  if(isUrl(text)){const a=document.createElement('a');a.textContent=text;a.title='Mở trong tab mới';a.onclick=()=>openUrl(text.trim());t.appendChild(a);}
+  else t.textContent=text;
+  row.appendChild(t);
+  const cb=document.createElement('button');cb.className='ic';cb.title='Sao chép';cb.innerHTML=ICON_COPY;cb.onclick=()=>copyText(text,cb);row.appendChild(cb);
+  if(isUrl(text)){const ob=document.createElement('button');ob.className='ic';ob.title='Mở tab mới';ob.innerHTML=ICON_OPEN;ob.onclick=()=>openUrl(text.trim());row.appendChild(ob);}
+  out.appendChild(row);
+}
+function msg(t,err){$('out').innerHTML='<div class="msg'+(err?' err':'')+'">'+t+'</div>';}
 
-      <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-700">
-        <button onclick="openAddModalWithDate()" class="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 text-sm font-semibold rounded-xl transition-all">
-          + Thêm việc ngày này
-        </button>
-        <button onclick="closeDetailModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-sm font-semibold rounded-xl transition-all">Đóng</button>
-      </div>
-    </div>
-  </div>
+function decode(img){
+  const w0=img.naturalWidth||img.width,h0=img.naturalHeight||img.height;
+  const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+  for(const max of [1600,1000,600,2400]){
+    const s=Math.min(1,max/Math.max(w0,h0));
+    const w=Math.round(w0*s),h=Math.round(h0*s);
+    cv.width=w;cv.height=h;cx.fillStyle='#fff';cx.fillRect(0,0,w,h);cx.drawImage(img,0,0,w,h);
+    const r=jsQR(cx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'attemptBoth'});
+    if(r)return r;
+  }
+  return null;
+}
+function handleFile(f){
+  if(!f||!f.type.startsWith('image/')){msg('Vui lòng chọn một tệp ảnh.',1);return;}
+  const url=URL.createObjectURL(f);
+  const img=new Image();
+  img.onload=()=>{
+    $('prev').src=url;$('prev').style.display='block';
+    const r=decode(img);
+    r?show(r):msg('Không tìm thấy QR code trong ảnh. Hãy thử ảnh rõ nét hơn hoặc cắt sát mã QR.',1);
+  };
+  img.onerror=()=>msg('Không đọc được ảnh này.',1);
+  img.src=url;
+}
+const drop=$('drop');
+drop.onclick=()=>$('file').click();
+$('file').onchange=e=>{handleFile(e.target.files[0]);e.target.value='';};
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hot');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hot');}));
+drop.addEventListener('drop',e=>handleFile(e.dataTransfer.files[0]));
+document.addEventListener('paste',e=>{
+  if($('p1').classList.contains('hide'))return;
+  for(const it of (e.clipboardData||{}).items||[]){
+    if(it.type.startsWith('image/')){e.preventDefault();handleFile(it.getAsFile());return;}
+  }
+});
 
-  <!-- MODAL LỊCH SỬ THÔNG BÁO -->
-  <div id="historyModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop z-50 flex items-center justify-center p-4 hidden opacity-0">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl p-6 border border-slate-100 dark:border-slate-700 modal-content scale-95 shadow-2xl" id="historyModalContent">
-      <div class="flex justify-between items-center mb-4">
-        <div class="flex items-center space-x-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <h3 class="text-lg font-bold">Lịch Sử Thông Báo</h3>
-        </div>
-        <button onclick="toggleNotificationHistory()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      
-      <div id="historyListContainer" class="space-y-3 max-h-72 overflow-y-auto mb-4 pr-1"></div>
-
-      <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-700">
-        <button onclick="clearHistory()" class="px-4 py-2 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 text-sm font-semibold rounded-xl transition-all">Xóa lịch sử</button>
-        <button onclick="toggleNotificationHistory()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-sm font-semibold rounded-xl">Đóng</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let calendar;
-    let selectedDateForNewEvent = '';
-
-    document.addEventListener('DOMContentLoaded', function() {
-      if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.classList.add('dark');
-      }
-
-      loadNotificationSettings();
-
-      const calendarEl = document.getElementById('calendar');
-      const defaultEvents = [
-        { id: '1', title: 'Họp chiến lược đầu tuần', start: '2026-10-19T08:30:00', backgroundColor: '#6366f1', description: 'Triển khai công việc tuần mới.' },
-        { id: '2', title: 'Chạy bộ thể dục', start: '2026-10-21T17:30:00', backgroundColor: '#f59e0b', description: 'Rèn luyện sức khỏe.' }
-      ];
-      const savedEvents = JSON.parse(localStorage.getItem('schedule_events')) || defaultEvents;
-
-      if (!localStorage.getItem('notif_history')) {
-        const sampleHistory = [
-          { title: '🗓️ Lịch trình tuần mới', body: 'Tuần này bạn có 2 hoạt động cần hoàn thành!', time: '19/10/2026 07:00' }
-        ];
-        localStorage.setItem('notif_history', JSON.stringify(sampleHistory));
-      }
-      checkNotificationBadge();
-
-      calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'vi',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        buttonText: { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày' },
-        events: savedEvents,
-        datesSet: function() {
-          if (document.startViewTransition) {
-            document.startViewTransition(() => {});
-          }
-        },
-        dateClick: function(info) {
-          selectedDateForNewEvent = info.dateStr;
-          showDayDetail(info.dateStr);
-        }
-      });
-      
-      calendar.render();
-    });
-
-    // --- Cài đặt thông báo ---
-    function openSettingsModal() {
-      const modal = document.getElementById('settingsModal');
-      modal.classList.remove('hidden');
-      setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('settingsModalContent').classList.remove('scale-95'); }, 10);
-    }
-    function closeSettingsModal() {
-      const modal = document.getElementById('settingsModal');
-      modal.classList.add('opacity-0'); document.getElementById('settingsModalContent').classList.add('scale-95');
-      setTimeout(() => modal.classList.add('hidden'), 300);
-    }
-    function loadNotificationSettings() {
-      const settings = JSON.parse(localStorage.getItem('notif_settings')) || { dailyTime: '20:00', weeklyDay: '1', weeklyTime: '07:00', contentType: 'detailed' };
-      document.getElementById('settingDailyTime').value = settings.dailyTime;
-      document.getElementById('settingWeeklyDay').value = settings.weeklyDay;
-      document.getElementById('settingWeeklyTime').value = settings.weeklyTime;
-      document.getElementById('settingContentType').value = settings.contentType;
-    }
-    function saveNotificationSettings() {
-      const settings = {
-        dailyTime: document.getElementById('settingDailyTime').value,
-        weeklyDay: document.getElementById('settingWeeklyDay').value,
-        weeklyTime: document.getElementById('settingWeeklyTime').value,
-        contentType: document.getElementById('settingContentType').value
-      };
-      localStorage.setItem('notif_settings', JSON.stringify(settings));
-      closeSettingsModal();
-      alert("Đã lưu cài đặt thông báo thành công!");
-    }
-
-    // --- Thêm Hoạt Động ---
-    function openAddModal() {
-      document.getElementById('eventStart').value = new Date().toISOString().slice(0, 16);
-      const modal = document.getElementById('addModal');
-      modal.classList.remove('hidden');
-      setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('modalContent').classList.remove('scale-95'); }, 10);
-    }
-    function openAddModalWithDate() {
-      closeDetailModal();
-      document.getElementById('eventStart').value = selectedDateForNewEvent + 'T08:00';
-      const modal = document.getElementById('addModal');
-      modal.classList.remove('hidden');
-      setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('modalContent').classList.remove('scale-95'); }, 10);
-    }
-    function closeAddModal() {
-      const modal = document.getElementById('addModal');
-      modal.classList.add('opacity-0'); document.getElementById('modalContent').classList.add('scale-95');
-      setTimeout(() => modal.classList.add('hidden'), 300);
-    }
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      const title = document.getElementById('eventTitle').value;
-      const start = document.getElementById('eventStart').value;
-      const backgroundColor = document.getElementById('eventPriority').value;
-      const description = document.getElementById('eventDesc').value;
-      const id = 'evt_' + Date.now();
-
-      const newEvent = { id, title, start, backgroundColor, description };
-      calendar.addEvent(newEvent);
-
-      let events = JSON.parse(localStorage.getItem('schedule_events')) || [];
-      events.push(newEvent);
-      localStorage.setItem('schedule_events', JSON.stringify(events));
-
-      const settings = JSON.parse(localStorage.getItem('notif_settings')) || { contentType: 'detailed' };
-      let notifBody = settings.contentType === 'detailed' 
-        ? `Nội dung: ${title} lúc ${new Date(start).toLocaleString('vi-VN')}` + (description ? ` (${description})` : '')
-        : `Bạn vừa thêm 1 hoạt động mới.`;
-
-      addHistoryItem('🔔 Đã thêm hoạt động', notifBody);
-      closeAddModal();
-      document.getElementById('eventForm').reset();
-      alert("Đã lưu hoạt động thành công!");
-    }
-
-    // --- Xem Chi Tiết & Xóa Công Việc ---
-    function showDayDetail(dateStr) {
-      selectedDateForNewEvent = dateStr;
-      const formattedDate = new Date(dateStr).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' });
-      document.getElementById('detailDateTitle').innerText = `Lịch trình ngày ${formattedDate}`;
-
-      const allEvents = calendar.getEvents();
-      const dayEvents = allEvents.filter(ev => ev.startStr.startsWith(dateStr));
-
-      const listContainer = document.getElementById('detailEventsList');
-      if (dayEvents.length === 0) {
-        listContainer.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">Không có hoạt động nào trong ngày này.</p>`;
-      } else {
-        listContainer.innerHTML = dayEvents.map(ev => `
-          <div class="detail-item p-3.5 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 flex justify-between items-center shadow-sm">
-            <div class="flex items-center space-x-3">
-              <span class="w-3.5 h-3.5 rounded-full flex-shrink-0" style="background-color: ${ev.backgroundColor || '#6366f1'}"></span>
-              <div>
-                <h4 class="font-semibold text-sm">${ev.title}</h4>
-                <p class="text-xs text-slate-400 mt-0.5">${new Date(ev.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} ${ev.extendedProps.description ? '• ' + ev.extendedProps.description : ''}</p>
-              </div>
-            </div>
-            <button onclick="deleteEvent('${ev.id}', '${dateStr}')" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 rounded-xl transition-all" title="Xóa công việc">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            </button>
-          </div>
-        `).join('');
-      }
-
-      const modal = document.getElementById('detailModal');
-      modal.classList.remove('hidden');
-      setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('detailModalContent').classList.remove('scale-95'); }, 10);
-    }
-
-    function deleteEvent(eventId, dateStr) {
-      if (!confirm("Bạn có chắc chắn muốn xóa hoạt động này không?")) return;
-
-      const targetEvent = calendar.getEventById(eventId);
-      if (targetEvent) targetEvent.remove();
-
-      let events = JSON.parse(localStorage.getItem('schedule_events')) || [];
-      events = events.filter(ev => ev.id !== eventId && ev.id != null);
-      localStorage.setItem('schedule_events', JSON.stringify(events));
-
-      addHistoryItem('🗑️ Đã xóa hoạt động', 'Một hoạt động đã được gỡ khỏi lịch trình.');
-      showDayDetail(dateStr);
-    }
-
-    function closeDetailModal() {
-      const modal = document.getElementById('detailModal');
-      modal.classList.add('opacity-0'); document.getElementById('detailModalContent').classList.add('scale-95');
-      setTimeout(() => modal.classList.add('hidden'), 300);
-    }
-
-    // --- Lịch sử thông báo ---
-    function toggleNotificationHistory() {
-      const modal = document.getElementById('historyModal');
-      const isHidden = modal.classList.contains('hidden');
-      if (isHidden) {
-        renderHistoryList();
-        modal.classList.remove('hidden');
-        setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('historyModalContent').classList.remove('scale-95'); }, 10);
-      } else {
-        modal.classList.add('opacity-0'); document.getElementById('historyModalContent').classList.add('scale-95');
-        setTimeout(() => modal.classList.add('hidden'), 300);
-      }
-    }
-    function renderHistoryList() {
-      const history = JSON.parse(localStorage.getItem('notif_history')) || [];
-      const container = document.getElementById('historyListContainer');
-      if (history.length === 0) {
-        container.innerHTML = `<p class="text-sm text-slate-400 text-center py-6">Chưa có lịch sử thông báo nào.</p>`;
-        return;
-      }
-      container.innerHTML = history.map(item => `
-        <div class="p-3.5 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700">
-          <div class="flex justify-between items-center mb-1">
-            <span class="font-semibold text-sm text-indigo-600 dark:text-indigo-400">${item.title}</span>
-            <span class="text-[11px] text-slate-400">${item.time}</span>
-          </div>
-          <p class="text-xs text-slate-600 dark:text-slate-300">${item.body}</p>
-        </div>
-      `).join('');
-    }
-    function addHistoryItem(title, body) {
-      let history = JSON.parse(localStorage.getItem('notif_history')) || [];
-      const now = new Date();
-      const timeStr = `${now.toLocaleDateString('vi-VN')} ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-      history.unshift({ title, body, time: timeStr });
-      localStorage.setItem('notif_history', JSON.stringify(history));
-      checkNotificationBadge();
-    }
-    function clearHistory() {
-      localStorage.removeItem('notif_history');
-      renderHistoryList();
-      checkNotificationBadge();
-      alert("Đã xóa sạch lịch sử thông báo!");
-    }
-    function checkNotificationBadge() {
-      const history = JSON.parse(localStorage.getItem('notif_history')) || [];
-      const badge = document.getElementById('notifBadge');
-      if (history.length > 0) badge.classList.remove('hidden');
-      else badge.classList.add('hidden');
-    }
-
-    // --- Đăng ký nhận Thông báo đẩy OneSignal ---
-    async function subscribePush() {
-      if (window.OneSignal && window.OneSignal.User) {
-        try {
-          await OneSignal.User.PushSubscription.optIn();
-          alert("Đã kích hoạt đăng ký thông báo thành công trên thiết bị này!");
-          addHistoryItem('🔔 Kích hoạt thông báo', 'Thiết bị đã đăng ký nhận thông báo đẩy thành công.');
-        } catch (err) {
-          alert("Vui lòng cho phép quyền thông báo trên trình duyệt.");
-        }
-      } else {
-        alert("Hệ thống thông báo đang kết nối, vui lòng thử lại sau vài giây.");
-      }
-    }
-
-    function toggleDarkMode() {
-      if (document.documentElement.classList.contains('dark')) {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      } else {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      }
-    }
-  </script>
+/* Generate */
+let logoUrl=null,qr=null;
+function opts(){
+  const s=+$('sz').value;
+  return{width:s,height:s,type:'canvas',data:$('data').value||' ',image:logoUrl||undefined,margin:8,
+    qrOptions:{errorCorrectionLevel:'H'},
+    dotsOptions:{type:$('dt').value,color:$('c1').value},
+    cornersSquareOptions:{type:$('cs').value,color:$('c2').value},
+    cornersDotOptions:{type:$('cs').value==='square'?'square':'dot',color:$('c2').value},
+    backgroundOptions:{color:$('c3').value},
+    imageOptions:{crossOrigin:'anonymous',margin:4,imageSize:$('ls').value/100,hideBackgroundDots:true}};
+}
+function draw(){
+  $('lv').textContent=$('ls').value;
+  if(!qr){qr=new QRCodeStyling(opts());qr.append($('qrbox'));}
+  else qr.update(opts());
+}
+['data','c1','c2','c3','dt','cs','sz','ls'].forEach(i=>$(i).addEventListener('input',draw));
+$('logo').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{logoUrl=r.result;draw();};r.readAsDataURL(f);
+};
+$('rmlogo').onclick=()=>{logoUrl=null;$('logo').value='';draw();};
+$('dpng').onclick=()=>qr&&qr.download({name:'qr-code',extension:'png'});
+$('dsvg').onclick=()=>qr&&qr.download({name:'qr-code',extension:'svg'});
+</script>
 </body>
 </html>
